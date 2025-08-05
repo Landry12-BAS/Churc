@@ -1,0 +1,5 @@
+setuptools
+wheel
+opencv-python
+numpy
+Pillow
