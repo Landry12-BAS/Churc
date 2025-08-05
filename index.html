@@ -1,32 +1,515 @@
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temple Bethesa</title>
+    <title>Photo Retouching Studio</title>
     <style>
-        h1{
-            text-align: center;
-            color: rgba(196, 126, 60, 0.959);
-            font-weight: 1500px;
-            padding-top: 10px;
-            padding-bottom: 30px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        div.bethesa img{
-            width:100%;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
             text-align: center;
-            border-radius: 20px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .controls-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group h3 {
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+
+        .control-item {
+            margin-bottom: 15px;
+        }
+
+        .control-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .control-item input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.3);
+        }
+
+        .control-item input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.3);
+        }
+
+        .value-display {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-align: right;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-1px);
+        }
+
+        .canvas-container {
+            padding: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+            background: #fff;
+        }
+
+        #canvas {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .file-input-container {
+            margin-bottom: 20px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+
+        .file-input-label:hover {
+            background: #0056b3;
+        }
+
+        .preset-filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .preset-filters .btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-panel {
+                order: 2;
+            }
         }
     </style>
 </head>
-
 <body>
-    <h1>Bienvenue Dans la Nouvelle Programme de Priere du TEMPLE BETHESA</h1>
+    <div class="container">
+        <div class="header">
+            <h1>📸 Photo Retouching Studio</h1>
+            <p>Professional photo editing tools at your fingertips</p>
+        </div>
 
-    <div class="bethesa">
-        <img src="Dfend_cause.png">
+        <div class="editor-container">
+            <div class="controls-panel">
+                <div class="file-input-container">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="imageInput" accept="image/*">
+                        <label for="imageInput" class="file-input-label">
+                            📁 Load New Image
+                        </label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🎨 Basic Adjustments</h3>
+                    <div class="control-item">
+                        <label for="brightness">Brightness</label>
+                        <input type="range" id="brightness" min="0" max="200" value="100">
+                        <div class="value-display" id="brightnessValue">100%</div>
+                    </div>
+                    <div class="control-item">
+                        <label for="contrast">Contrast</label>
+                        <input type="range" id="contrast" min="0" max="200" value="100">
+                        <div class="value-display" id="contrastValue">100%</div>
+                    </div>
+                    <div class="control-item">
+                        <label for="saturation">Saturation</label>
+                        <input type="range" id="saturation" min="0" max="200" value="100">
+                        <div class="value-display" id="saturationValue">100%</div>
+                    </div>
+                    <div class="control-item">
+                        <label for="hue">Hue Shift</label>
+                        <input type="range" id="hue" min="0" max="360" value="0">
+                        <div class="value-display" id="hueValue">0°</div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🔧 Effects</h3>
+                    <div class="control-item">
+                        <label for="blur">Blur</label>
+                        <input type="range" id="blur" min="0" max="10" value="0" step="0.1">
+                        <div class="value-display" id="blurValue">0px</div>
+                    </div>
+                    <div class="control-item">
+                        <label for="sepia">Sepia</label>
+                        <input type="range" id="sepia" min="0" max="100" value="0">
+                        <div class="value-display" id="sepiaValue">0%</div>
+                    </div>
+                    <div class="control-item">
+                        <label for="grayscale">Grayscale</label>
+                        <input type="range" id="grayscale" min="0" max="100" value="0">
+                        <div class="value-display" id="grayscaleValue">0%</div>
+                    </div>
+                    <div class="control-item">
+                        <label for="invert">Invert</label>
+                        <input type="range" id="invert" min="0" max="100" value="0">
+                        <div class="value-display" id="invertValue">0%</div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>✨ Preset Filters</h3>
+                    <div class="preset-filters">
+                        <button class="btn btn-secondary" onclick="applyPreset('vintage')">Vintage</button>
+                        <button class="btn btn-secondary" onclick="applyPreset('dramatic')">Dramatic</button>
+                        <button class="btn btn-secondary" onclick="applyPreset('cool')">Cool Tone</button>
+                        <button class="btn btn-secondary" onclick="applyPreset('warm')">Warm Tone</button>
+                        <button class="btn btn-secondary" onclick="applyPreset('bw')">B&W</button>
+                        <button class="btn btn-secondary" onclick="applyPreset('soft')">Soft</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>💾 Actions</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="resetImage()">Reset</button>
+                        <button class="btn btn-success" onclick="downloadImage()">Download</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
     </div>
-</body>
 
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let originalImage = null;
+        let currentFilters = {
+            brightness: 100,
+            contrast: 100,
+            saturation: 100,
+            hue: 0,
+            blur: 0,
+            sepia: 0,
+            grayscale: 0,
+            invert: 0
+        };
+
+        // Load the default image
+        function loadDefaultImage() {
+            const img = new Image();
+            img.onload = function() {
+                originalImage = img;
+                resizeCanvas(img.width, img.height);
+                applyFilters();
+            };
+            img.src = 'Dfend_cause.png';
+        }
+
+        // Load image from file input
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        originalImage = img;
+                        resizeCanvas(img.width, img.height);
+                        resetFilters();
+                        applyFilters();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function resizeCanvas(width, height) {
+            const maxWidth = 800;
+            const maxHeight = 600;
+            
+            let newWidth = width;
+            let newHeight = height;
+            
+            if (width > maxWidth) {
+                newWidth = maxWidth;
+                newHeight = (height * maxWidth) / width;
+            }
+            
+            if (newHeight > maxHeight) {
+                newWidth = (newWidth * maxHeight) / newHeight;
+                newHeight = maxHeight;
+            }
+            
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+        }
+
+        // Apply all filters to the image
+        function applyFilters() {
+            if (!originalImage) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Build filter string
+            const filters = [
+                `brightness(${currentFilters.brightness}%)`,
+                `contrast(${currentFilters.contrast}%)`,
+                `saturate(${currentFilters.saturation}%)`,
+                `hue-rotate(${currentFilters.hue}deg)`,
+                `blur(${currentFilters.blur}px)`,
+                `sepia(${currentFilters.sepia}%)`,
+                `grayscale(${currentFilters.grayscale}%)`,
+                `invert(${currentFilters.invert}%)`
+            ].join(' ');
+
+            ctx.filter = filters;
+            
+            // Draw the image with filters applied
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+        }
+
+        // Update filter values and apply
+        function updateFilter(filterName, value) {
+            currentFilters[filterName] = value;
+            applyFilters();
+            
+            // Update display value
+            const displayElement = document.getElementById(filterName + 'Value');
+            if (displayElement) {
+                let displayValue;
+                switch(filterName) {
+                    case 'hue':
+                        displayValue = value + '°';
+                        break;
+                    case 'blur':
+                        displayValue = value + 'px';
+                        break;
+                    default:
+                        displayValue = value + '%';
+                }
+                displayElement.textContent = displayValue;
+            }
+        }
+
+        // Reset all filters to default values
+        function resetFilters() {
+            currentFilters = {
+                brightness: 100,
+                contrast: 100,
+                saturation: 100,
+                hue: 0,
+                blur: 0,
+                sepia: 0,
+                grayscale: 0,
+                invert: 0
+            };
+            
+            // Update all input values
+            Object.keys(currentFilters).forEach(key => {
+                const input = document.getElementById(key);
+                if (input) input.value = currentFilters[key];
+                updateFilter(key, currentFilters[key]);
+            });
+        }
+
+        function resetImage() {
+            resetFilters();
+            applyFilters();
+        }
+
+        // Apply preset filter combinations
+        function applyPreset(preset) {
+            const presets = {
+                vintage: { brightness: 110, contrast: 120, saturation: 80, sepia: 30, blur: 0.2 },
+                dramatic: { brightness: 95, contrast: 150, saturation: 120, hue: 0, blur: 0 },
+                cool: { brightness: 105, contrast: 110, saturation: 90, hue: 200, blur: 0 },
+                warm: { brightness: 110, contrast: 105, saturation: 110, hue: 30, sepia: 10 },
+                bw: { brightness: 100, contrast: 120, saturation: 0, grayscale: 100, blur: 0 },
+                soft: { brightness: 115, contrast: 80, saturation: 90, blur: 1, sepia: 5 }
+            };
+
+            if (presets[preset]) {
+                // Reset first
+                resetFilters();
+                
+                // Apply preset values
+                Object.keys(presets[preset]).forEach(key => {
+                    if (currentFilters.hasOwnProperty(key)) {
+                        currentFilters[key] = presets[preset][key];
+                        const input = document.getElementById(key);
+                        if (input) input.value = currentFilters[key];
+                        updateFilter(key, currentFilters[key]);
+                    }
+                });
+            }
+        }
+
+        // Download the edited image
+        function downloadImage() {
+            if (!originalImage) return;
+            
+            const link = document.createElement('a');
+            link.download = 'retouched_image.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Add event listeners for all controls
+        document.querySelectorAll('input[type="range"]').forEach(input => {
+            input.addEventListener('input', function() {
+                updateFilter(this.id, parseFloat(this.value));
+            });
+        });
+
+        // Initialize with default image
+        loadDefaultImage();
+    </script>
+</body>
 </html>
